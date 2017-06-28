@@ -1,0 +1,216 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title id='Description'>In order to enter in edit mode, select a grid cell and start typing, "Click" or press the "F2" key. You 
+    can also navigate through the cells using the keyboard arrows or with the "Tab" and "Shift + Tab" key combinations. To cancel the cell editing, press the "Esc" key. To save
+    the changes press the "Enter" key or select another Grid cell. Pressing the 'Space' key when a checkbox cell is selected will toggle the check state.</title>
+	<meta name="description" content="jQuery Grid Cells editing. jQWidgets Grid supports multiple built-in cell editors like checkbox, dropdownlist, combobox, etc." /> 	
+    <link rel="stylesheet" href="../../jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="../../scripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdata.js"></script> 
+    <script type="text/javascript" src="../../jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.edit.js"></script>  
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.selection.js"></script> 
+    <script type="text/javascript" src="../../jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcombobox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcalendar.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxnumberinput.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdatetimeinput.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/globalization/globalize.js"></script>
+    <script type="text/javascript" src="../../scripts/demos.js"></script>
+    <script type="text/javascript" src="generatedata.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // prepare the data
+
+
+            var isExpand = 0;
+            var dataFP = generateFP(5);
+            var sourceFP =
+            {
+                localdata: dataFP,
+                datatype: "array",
+                updaterow: function (rowid, rowdata, commit) {
+                    // synchronize with the server - send update command
+                    // call commit with parameter true if the synchronization with the server is successful
+                    // and with parameter false if the synchronization failder.
+                    commit(true);
+                },
+                datafields:
+                [
+                    { name: 'layer', type: 'string' },
+                    { name: 'reference', type: 'string' },
+                    { name: 'typeFP', type: 'string' },
+                    { name: 'remark', type: 'string' },
+                    { name: 'functionalProcess', type: 'string' },
+                    { name: 'sizeFP', editable: 'false', type: 'string' }
+
+                ]
+            };
+
+
+            var dataDG = generateDG(4);
+            var sourceDG =
+            {
+                localdata: dataDG,
+                datatype: "array",
+                updaterow: function (rowid, rowdata, commit) {
+                    // synchronize with the server - send update command
+                    // call commit with parameter true if the synchronization with the server is successful
+                    // and with parameter false if the synchronization failder.
+                    commit(true);
+                },
+                datafields:
+                [
+                    { name: 'dataGroup', type: 'string' },
+                    { name: 'movement', type: 'string' },
+                    { name: 'remark', type: 'string' },
+                    { name: 'sizeGP', type: 'number' }
+                ]
+            };
+
+            var dataAdapterFP = new $.jqx.dataAdapter(sourceFP);
+
+            var nestedGrids = new Array();
+            // create nested grid.
+            var initrowdetails = function (index, parentElement, gridElement, record) {
+                var id = record.uid.toString();
+                var grid = $($(parentElement).children()[0]);
+                nestedGrids[index] = grid;
+
+                var dataAdapterDetail = new $.jqx.dataAdapter(sourceDG);
+                if (grid != null) {
+                    grid.jqxGrid({
+                        source: dataAdapterDetail, width: 780, height: 200,
+                        selectionmode: 'multiplecellsadvanced',
+                        showeverpresentrow: true,
+                        everpresentrowposition: "bottom",
+                        editable: true,
+                        columns: [
+                            { text: 'Data Group', columntype: 'textbox', datafield: 'dataGroup', width: 406 },
+                            { text: 'Movement', datafield: 'movement', columntype: 'textbox', width: 122 },
+                            { text: 'Remark', columntype: 'textbox', datafield: 'remark', width: 150 },
+                            { text: 'Size', datafield: 'sizeGP', columntype: 'numberinput', width: 50, editable: false },
+                            { text: '', width: 37, editable: false }
+                         ]
+                    });
+                }
+            }
+
+            // initialize jqxGrid
+            $("#jqxgrid").jqxGrid(
+            {
+                width: 850,
+                height: 600,
+                source: dataAdapterFP,
+                showeverpresentrow: true,
+                everpresentrowposition: "bottom",
+                rowdetails: true,
+                rowsheight: 25,
+                initrowdetails: initrowdetails,
+                editable: true,
+                editmode: 'selectedcell',
+                enabletooltips: true,
+                showrowdetailscolumn: true,
+               // enablekeyboarddelete: true,
+                selectionmode: 'multiplerowsadvanced',
+                //selectionmode: 'singlerow',
+                rowdetailstemplate: { rowdetails: "<div id='grid' style='margin: 10px;'></div>", rowdetailsheight: 220, rowdetailshidden: true },
+                ready: function () {
+                   // $("#jqxgrid").jqxGrid('showrowdetails',0);
+                },
+
+                columns: [
+                  { text: 'Layer',datafield: 'layer', columntype: 'combobox', width: 80 },
+                  { text: 'Type', datafield: 'typeFP', columntype: 'dropdownlist', width: 80,
+                         createeditor: function (row, column, editor) {
+                            // assign a new data source to the dropdownlist.
+                            var list = ["New", "Update", "Delete"];
+                            editor.jqxDropDownList({ autoDropDownHeight: true, autoOpen: true, source: list });
+                        },
+                        // update the editor's value before saving it.
+                        cellvaluechanging: function (row, column, columntype, oldvalue, newvalue) {
+                            // return the old value, if the new value is empty.
+                            if (newvalue == "") return oldvalue;
+                        }
+                  },
+                  { text: 'Ref.', datafield: 'reference', columntype: 'textbox',  width: 80 },
+                  { text: 'F.P.', datafield: 'functionalProcess', columntype: 'textbox', width: 300 },
+                  { text: 'Remark', datafield: 'remark', columntype: 'textbox', width: 150 },
+                  { text: 'Size', datafield: 'sizeFP', columntype: 'textbox', width: 50, editable: false },
+                  { text: '', width: 67, editable: false }
+                ]
+
+            });
+
+            // events
+            $("#jqxgrid").on('cellbeginedit', function (event) {
+                var args = event.args;
+                $("#cellbegineditevent").text("Event Type: cellbeginedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+            });
+
+            $("#jqxgrid").on('rowclick', function (event) {
+
+                var args = event.args;
+                var ev = event.args.originalEvent;
+                $("#cellbegineditevent").text("Event Type: rowclick, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+                if (isExpand == 0){
+
+                $("#jqxgrid").jqxGrid('showrowdetails', args.rowindex);
+
+                };
+
+                isExpand = 1;
+            });
+
+/*
+            $('#jqxgrid').on('rowselect', function (event) {
+                var args = event.args;
+                var index = args.rowindex;
+                var details = $('#jqxgrid').jqxGrid('getrowdetails', index);
+                var col = $('#jqxgrid').jqxGrid('getcolumnat', 0);
+                $('#jqxgrid').jqxGrid('showrowdetails', index);
+            });
+*/
+
+            $("#jqxgrid").on('cellendedit', function (event) {
+                var args = event.args;
+                $("#cellendeditevent").text("Event Type: cellendedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+            });
+
+            $("#expandDetails").click(function () {
+                var rows = $("#jqxgrid").jqxGrid('getrows');
+                var rowsString = "";
+                for (var i = 0; i < rows.length; i++) {
+                  $('#jqxgrid').jqxGrid('showrowdetails', i);
+                };
+            });
+            $("#hideDetails").click(function () {
+                var rows = $("#jqxgrid").jqxGrid('getrows');
+                var rowsString = "";
+                for (var i = 0; i < rows.length; i++) {
+                  $('#jqxgrid').jqxGrid('hiderowdetails', i);
+                };
+            });
+        });
+    </script>
+</head>
+<body class='default'>
+    <div id='jqxWidget'>
+           <button id="expandDetails">Expand all</button>
+        <button id="hideDetails">Collapse all</button>
+        <div id="jqxgrid"></div>
+        <div style="font-size: 12px; font-family: Verdana, Geneva, 'DejaVu Sans', sans-serif; margin-top: 30px;">
+            <div id="cellbegineditevent"></div>
+            <div style="margin-top: 10px;" id="cellendeditevent"></div>
+       </div>
+    </div>
+</body>
+</html>

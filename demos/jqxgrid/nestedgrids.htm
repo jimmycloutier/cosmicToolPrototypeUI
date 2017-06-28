@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title id='Description'>This example shows how to display nested Grid plugins.</title>
+    <link rel="stylesheet" href="../../jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="../../scripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdata.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.selection.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.filter.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.sort.js"></script>
+    <script type="text/javascript" src="../../scripts/demos.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var url = "../sampledata/employees.xml";
+
+            var source =
+            {
+                datafields: [
+                    { name: 'FirstName' },
+                    { name: 'LastName' },
+                    { name: 'Title' },
+                    { name: 'Address' },
+                    { name: 'City' }
+                ],
+                root: "Employees",
+                record: "Employee",
+                id: 'EmployeeID',
+                datatype: "xml",
+                async: false,
+                url: url
+            };
+
+            var employeesAdapter = new $.jqx.dataAdapter(source);
+
+            var orderdetailsurl = "../sampledata/orderdetails.xml";
+
+            var ordersSource =
+            {
+                datafields: [
+                    { name: 'EmployeeID', type: 'string' },
+                    { name: 'ShipName', type: 'string' },
+                    { name: 'ShipAddress', type: 'string' },
+                    { name: 'ShipCity', type: 'string' },
+                    { name: 'ShipCountry', type: 'string' },
+                    { name: 'ShippedDate', type: 'date' }
+                ],
+                root: "Orders",
+                record: "Order",
+                datatype: "xml",
+                url: orderdetailsurl,
+                async: false
+            };
+
+            var ordersDataAdapter = new $.jqx.dataAdapter(ordersSource, { autoBind: true });
+            orders = ordersDataAdapter.records;
+            var nestedGrids = new Array();
+
+            // create nested grid.
+            var initrowdetails = function (index, parentElement, gridElement, record) {
+                var id = record.uid.toString();
+                var grid = $($(parentElement).children()[0]);
+                nestedGrids[index] = grid;
+                var filtergroup = new $.jqx.filter();
+                var filter_or_operator = 1;
+                var filtervalue = id;
+                var filtercondition = 'equal';
+                var filter = filtergroup.createfilter('stringfilter', filtervalue, filtercondition);
+                // fill the orders depending on the id.
+                var ordersbyid = [];
+                for (var m = 0; m < orders.length; m++) {
+                    var result = filter.evaluate(orders[m]["EmployeeID"]);
+                    if (result)
+                        ordersbyid.push(orders[m]);
+                }
+
+                var orderssource = { datafields: [
+                    { name: 'EmployeeID', type: 'string' },
+                    { name: 'ShipName', type: 'string' },
+                    { name: 'ShipAddress', type: 'string' },
+                    { name: 'ShipCity', type: 'string' },
+                    { name: 'ShipCountry', type: 'string' },
+                    { name: 'ShippedDate', type: 'date' }
+                ],
+                    id: 'OrderID',
+                    localdata: ordersbyid
+                }
+                var nestedGridAdapter = new $.jqx.dataAdapter(orderssource);
+
+                if (grid != null) {
+                    grid.jqxGrid({
+                        source: nestedGridAdapter, width: 780, height: 200,
+                        showstatusbar: true,
+                        renderstatusbar: function (statusbar) {
+                            // appends buttons to the status bar.
+                            var container = $("<div style='overflow: hidden; position: relative; margin: 5px;'></div>");
+                            var addButton = $("<div style='float: left; margin-left: 5px;'><img style='position: relative; margin-top: 2px;' src='../../images/add.png'/><span style='margin-left: 4px; position: relative; top: -3px;'>Add</span></div>");
+                            var deleteButton = $("<div style='float: left; margin-left: 5px;'><img style='position: relative; margin-top: 2px;' src='../../images/close.png'/><span style='margin-left: 4px; position: relative; top: -3px;'>Delete</span></div>");
+                            var reloadButton = $("<div style='float: left; margin-left: 5px;'><img style='position: relative; margin-top: 2px;' src='../../images/refresh.png'/><span style='margin-left: 4px; position: relative; top: -3px;'>Reload</span></div>");
+                            var searchButton = $("<div style='float: left; margin-left: 5px;'><img style='position: relative; margin-top: 2px;' src='../../images/search.png'/><span style='margin-left: 4px; position: relative; top: -3px;'>Find</span></div>");
+                            container.append(addButton);
+                            container.append(deleteButton);
+                            container.append(reloadButton);
+                            container.append(searchButton);
+                            statusbar.append(container);
+                            addButton.jqxButton({ theme: theme, width: 60, height: 20 });
+                            deleteButton.jqxButton({ theme: theme, width: 65, height: 20 });
+                            reloadButton.jqxButton({ theme: theme, width: 65, height: 20 });
+                            searchButton.jqxButton({ theme: theme, width: 50, height: 20 });
+                            // add new row.
+                            addButton.click(function (event) {
+                                //                                var datarow = generatedata(1);
+                                grid.jqxGrid('addrow', null, {});
+                            });
+                            // delete selected row.
+                            deleteButton.click(function (event) {
+                                var selectedrowindex = grid.jqxGrid('getselectedrowindex');
+                                var rowscount = grid.jqxGrid('getdatainformation').rowscount;
+                                if (selectedrowindex >= 0 && selectedrowindex < rowscount) {
+                                    var id = grid.jqxGrid('getrowid', selectedrowindex);
+                                    grid.jqxGrid('deleterow', id);
+                                }
+                            });
+                            // reload grid data.
+                            reloadButton.click(function (event) {
+                                grid.jqxGrid({ source: orderssource });
+                            });
+                        },
+                        columns: [
+                          { text: 'Ship Name', datafield: 'ShipName', width: 200 },
+                          { text: 'Ship Address', datafield: 'ShipAddress', width: 200 },
+                          { text: 'Ship City', datafield: 'ShipCity', width: 150 },
+                          { text: 'Ship Country', datafield: 'ShipCountry', width: 150 },
+                          { text: 'Shipped Date', datafield: 'ShippedDate', width: 200 }
+                       ]
+                    });
+                }
+            }
+
+            // creage jqxgrid
+            $("#jqxgrid").jqxGrid(
+            {
+                width: 850,
+                height: 365,
+                source: source,
+                rowdetails: true,
+                rowsheight: 35,
+                initrowdetails: initrowdetails,
+                rowdetailstemplate: { rowdetails: "<div id='grid' style='margin: 10px;'></div>", rowdetailsheight: 220, rowdetailshidden: true },
+                ready: function () {
+                    $("#jqxgrid").jqxGrid('showrowdetails', 1);
+                },
+                columns: [
+                     // { text: 'Photo', width: 50, cellsrenderer: photorenderer },
+                      { text: 'First Name', columntype: 'textbox',datafield: 'FirstName', width: 100},
+                      { text: 'Last Name', columntype: 'textbox',datafield: 'LastName', width: 100 },
+                      { text: 'Title', columntype: 'textbox',datafield: 'Title', width: 180},
+                      { text: 'Address', columntype: 'textbox',datafield: 'Address', width: 300},
+                      { text: 'City', columntype: 'textbox',datafield: 'City', width: 170}
+                  ]
+            });
+        });
+    </script>
+</head>
+<body class='default'>
+    <div id="jqxgrid">
+    </div>
+</body>
+</html>

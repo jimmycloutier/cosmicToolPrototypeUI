@@ -1,0 +1,274 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title id='Description'>In order to enter in edit mode, select a grid cell and start typing, "Click" or press the "F2" key. You 
+    can also navigate through the cells using the keyboard arrows or with the "Tab" and "Shift + Tab" key combinations. To cancel the cell editing, press the "Esc" key. To save
+    the changes press the "Enter" key or select another Grid cell. Pressing the 'Space' key when a checkbox cell is selected will toggle the check state.</title>
+	<meta name="description" content="jQuery Grid Cells editing. jQWidgets Grid supports multiple built-in cell editors like checkbox, dropdownlist, combobox, etc." /> 	
+    <link rel="stylesheet" href="../../jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script type="text/javascript" src="../../scripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdata.js"></script> 
+    <script type="text/javascript" src="../../jqwidgets/jqxbuttons.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxscrollbar.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxmenu.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.edit.js"></script>  
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.selection.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxgrid.sort.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxlistbox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcombobox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdropdownlist.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcheckbox.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxcalendar.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxnumberinput.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdatetimeinput.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/jqxdragdrop.js"></script>
+    <script type="text/javascript" src="../../jqwidgets/globalization/globalize.js"></script>
+    <script type="text/javascript" src="../../scripts/demos.js"></script>
+    <script type="text/javascript" src="generatedata.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // prepare the data
+
+
+
+            var dataFP = generateFP(5);
+            var sourceFP =
+            {
+                localdata: dataFP,
+                datatype: "array",
+                updaterow: function (rowid, rowdata, commit) {
+                    // synchronize with the server - send update command
+                    // call commit with parameter true if the synchronization with the server is successful
+                    // and with parameter false if the synchronization failder.
+                    commit(true);
+                },
+                datafields:
+                [
+                    { name: 'layer', type: 'string' },
+                    { name: 'reference', type: 'string' },
+                    { name: 'typeFP', type: 'string' },
+                    { name: 'remark', type: 'string' },
+                    { name: 'functionalProcess', type: 'string' },
+                    { name: 'sizeFP', editable: 'false', type: 'string' }
+
+                ]
+            };
+
+
+            var dataDG = generateDG(4);
+            var sourceDG =
+            {
+                localdata: dataDG,
+                datatype: "array",
+                updaterow: function (rowid, rowdata, commit) {
+                    // synchronize with the server - send update command
+                    // call commit with parameter true if the synchronization with the server is successful
+                    // and with parameter false if the synchronization failder.
+                    commit(true);
+                },
+                datafields:
+                [
+                    { name: 'dataGroup', type: 'string' },
+                    { name: 'movement', type: 'string' },
+                    { name: 'remark', type: 'string' },
+                    { name: 'sizeGP', type: 'number' }
+                ]
+            };
+
+            var dataAdapterFP = new $.jqx.dataAdapter(sourceFP);
+
+            var nestedGrids = new Array();
+            // create nested grid.
+            var initrowdetails = function (index, parentElement, gridElement, record) {
+                var id = record.uid.toString();
+                var grid = $($(parentElement).children()[0]);
+                nestedGrids[index] = grid;
+
+                var dataAdapterDetail = new $.jqx.dataAdapter(sourceDG);
+                if (grid != null) {
+                    grid.jqxGrid({
+                        source: dataAdapterDetail, width: 780, height: 200,
+                        selectionmode: 'multiplecellsadvanced',
+                        showeverpresentrow: true,
+                        everpresentrowposition: "bottom",
+                        editable: true,
+                        columns: [
+                            { text: 'Data Group', columntype: 'textbox', datafield: 'dataGroup', width: 406 },
+                            { text: 'Movement', datafield: 'movement', columntype: 'textbox', width: 122 },
+                            { text: 'Remark', columntype: 'textbox', datafield: 'remark', width: 150 },
+                            { text: 'Size', datafield: 'sizeGP', columntype: 'numberinput', width: 50, editable: false },
+                            { text: '', width: 37, editable: false }
+                         ]
+                    });
+                }
+            }
+
+            // initialize jqxGrid
+            $("#jqxgrid").jqxGrid(
+            {
+                width: 850,
+                height: 600,
+                source: dataAdapterFP,
+               // showeverpresentrow: true,
+                everpresentrowposition: "bottom",
+                rowdetails: true,
+                rowsheight: 25,
+                initrowdetails: initrowdetails,
+                editable: true,
+                showrowdetailscolumn: true,
+                enabletooltips: true,
+                selectionmode: 'singlerow',
+                rowdetailstemplate: { rowdetails: "<div id='grid' style='margin: 10px;'></div>", rowdetailsheight: 220, rowdetailshidden: true },
+                ready: function () {
+                   // $("#jqxgrid").jqxGrid('showrowdetails',0);
+                },
+                columns: [
+                  { text: 'Layer',datafield: 'layer', columntype: 'combobox', width: 80 },
+                  { text: 'Type', datafield: 'typeFP', columntype: 'dropdownlist', width: 80,
+                         createeditor: function (row, column, editor) {
+                            // assign a new data source to the dropdownlist.
+                            var list = ["New", "Update", "Delete"];
+                            editor.jqxDropDownList({ autoDropDownHeight: true, autoOpen: true, source: list });
+                        },
+                        // update the editor's value before saving it.
+                        cellvaluechanging: function (row, column, columntype, oldvalue, newvalue) {
+                            // return the old value, if the new value is empty.
+                            if (newvalue == "") return oldvalue;
+                        }
+                  },
+                  { text: 'Ref.', datafield: 'reference', columntype: 'textbox',  width: 80 },
+                  { text: 'F.P.', datafield: 'functionalProcess', columntype: 'textbox', width: 300 },
+                  { text: 'Remark', datafield: 'remark', columntype: 'textbox', width: 150 },
+                  { text: 'Size', datafield: 'sizeFP', columntype: 'textbox', width: 50, editable: false },
+                  { text: '', width: 67, editable: false }
+                ]
+
+            });
+
+
+            // Drag Drop
+            // select all grid cells.
+            var gridCells = $('#jqxgrid').find('.jqx-grid-cell');
+
+            // initialize the jqxDragDrop plug-in. Set its drop target to the second Grid.
+            gridCells.jqxDragDrop({ appendTo: 'body',  dragZIndex: 99999,
+                dropAction: 'none',
+                initFeedback: function (feedback) {
+                    var rowsindexes = $("#jqxgrid").jqxGrid('getselectedrowindexes');
+                    feedback.height(25);
+                    feedback.width( $("#jqxgrid").width());
+                    feedback.css('background', '#aaa');
+                }
+            });
+
+
+            // initialize the dragged object.
+           gridCells.on('dragStart', function (event) {
+                var value = $(this).text();
+                var position = $.jqx.position(event.args);
+                var cell = $("#jqxgrid").jqxGrid('getcellatposition', position.left, position.top);
+                var rowsindexes = $("#jqxgrid").jqxGrid('getselectedrowindexes');
+
+                var rows = [];
+                var clickedrow = cell.row;
+                var isselected = false;
+                for (var i = 0; i < rowsindexes.length; i++) {
+                    if (rowsindexes[i] == clickedrow) {
+                        isselected = true;
+                    }
+
+                    rows[rows.length] = $("#jqxgrid").jqxGrid('getrowdata', rowsindexes[i]);
+                }
+                if (!isselected) {
+                    $("#jqxgrid").jqxGrid('selectrow', cell.row);
+                    rows[rows.length] = $("#jqxgrid").jqxGrid('getrowdata', cell.row);
+                }
+
+                if (rows.length > 0) {
+                    // update feedback's display value.
+                    /*
+                    var feedback = $(this).jqxDragDrop('feedback');
+                    if (feedback) {
+                        feedback.height(rows.length * 25 + 25);
+                        var table = '<table>';
+                        table += '<tr>';
+                            table += '<td style="width:' + this.width + 'px;">';
+                            table += "Row move override text"
+                            table += '</td>';
+                        table += '</tr>';
+                        table += '</table>';
+                        feedback.html(table);
+                    }*/
+                    // set the dragged records as data
+                    $(this).jqxDragDrop({ data: rows })
+
+                }
+            });
+
+
+           gridCells.on('dragEnd', function (event) {
+                var value = event.args[0];
+                $("#cellendeditevent").text("0");
+                var position = $.jqx.position(event.args);
+                $("#cellendeditevent").text("1");
+                var pageX = position.left;
+                $("#cellendeditevent").text("2");
+                var pageY = position.top;
+                $("#cellendeditevent").text("3");
+                var $form = $("#jqxWidget");
+                $("#cellendeditevent").text("4");
+                var targetX = $form.offset().left;
+                $("#cellendeditevent").text("5");
+                var targetY = $form.offset().top;
+                $("#cellendeditevent").text("6");
+                var width = $form.width();
+                $("#cellendeditevent").text("7");
+                var height = $form.height();
+                $("#cellendeditevent").text("Position Left : " + pageX + " Position Right : " + pageY + " TargetX : " + targetX + " Target Y : " + targetY);
+                var cell = $("#jqxgrid").jqxGrid('getcellatposition', pageX, pageY); //get the cell under that position
+                $("#cellendeditevent").text("9");
+                var dropRow = parseInt(cell.row);
+
+                $("#cellendeditevent").text("10");
+
+                var droppedRow = $("#jqxgrid").jqxGrid('getrowdata', dropRow); // this is the row where the drop occurred - complete row data
+
+                $("#jqxgrid").jqxGrid('setcellvaluebyid', dropRow, "remark", "a drop here");
+
+                $("#cellendeditevent").text("DraggedRow : " + value.reference + " UID : " + value.uid + " + Visible index : " + value.visibleindex + " Bound index : " + value.boundindex );
+                $("#jqxgrid").jqxGrid('sortby', 'remark', 'asc');
+            });
+
+            // events
+            $("#jqxgrid").on('cellbeginedit', function (event) {
+                var args = event.args;
+                $("#cellbegineditevent").text("Event Type: cellbeginedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+            });
+/*
+            $("#jqxgrid").on('cellselect', function (event) {
+             var args = event.args;
+                $("#cellbegineditevent").text("Event Type: rowclick, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+                $("#jqxgrid").jqxGrid('showrowdetails', args.rowindex);
+
+            });*/
+
+            $("#jqxgrid").on('cellendedit', function (event) {
+                var args = event.args;
+                $("#cellendeditevent").text("Event Type: cellendedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+            });
+        });
+    </script>
+</head>
+<body class='default'>
+    <div id='jqxWidget'>
+        <div id="jqxgrid"></div>
+        <div style="font-size: 12px; font-family: Verdana, Geneva, 'DejaVu Sans', sans-serif; margin-top: 30px;">
+            <div id="cellbegineditevent"></div>
+            <div style="margin-top: 10px;" id="cellendeditevent"></div>
+       </div>
+    </div>
+</body>
+</html>
