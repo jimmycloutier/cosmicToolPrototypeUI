@@ -45,7 +45,24 @@
         row["sizeFP"] = sizeFP[Math.floor(Math.random() * sizeFP.length)];
 
         data[i] = row;
+
     }
+
+     for (var j = rowscount; j < rowscount + 100; j++) {
+        var row = {};
+
+        row["id"] = data.length;
+        row["layer"] = "";
+        row["typeFP"] = "";
+        row["reference"] = "";
+        row["functionalProcess"] = "";
+        row["remark"] = "";
+        row["sizeFP"] = "";
+
+        data[j] = row;
+
+    }
+
 
     return data;
 
@@ -83,6 +100,20 @@ function generateDG(rowscount) {
         row["sizeGP"] = row["dataGroup"].length;
 
         data[i] = row;
+    }
+
+     for (var j = rowscount; j < rowscount + 100; j++) {
+        var row = {};
+
+        row["id"] = j;
+        row["dataGroup"] = "";
+        row["movement"] = "";
+        row["remark"] = "";
+        row["sizeGP"] = "";
+
+
+        data[j] = row;
+
     }
 
     return data;

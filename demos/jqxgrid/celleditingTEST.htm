@@ -89,10 +89,23 @@
                 if (grid != null) {
                     grid.jqxGrid({
                         source: dataAdapterDetail, width: 780, height: 200,
-                        selectionmode: 'multiplecellsadvanced',
-                        showeverpresentrow: true,
-                        everpresentrowposition: "bottom",
+                        editmode: 'selectedcell',
+                        selectionmode: 'singlecell',
+                        //showeverpresentrow: true,
+                        //everpresentrowposition: "bottom",
                         editable: true,
+                        handlekeyboardnavigation: function (event) {
+                            /*var key = event.charCode ? event.charCode : event.keyCode ? event.keyCode : 0;
+                            if (key == 13) {
+                                var cell = grid.jqxGrid('getselectedcell');
+                                if (editFlagNested == false) {
+                                    grid.jqxGrid('begincelledit', cell.rowindex, cell.datafield);
+                                } else {
+                                    grid.jqxGrid('endcelledit', cell.rowindex, cell.datafield);
+                                };
+                                return true;
+                            };*/
+                        },
                         columns: [
                             { text: 'Data Group', columntype: 'textbox', datafield: 'dataGroup', width: 406 },
                             { text: 'Movement', datafield: 'movement', columntype: 'textbox', width: 122 },
@@ -110,18 +123,28 @@
                 width: 850,
                 height: 600,
                 source: dataAdapterFP,
-                showeverpresentrow: true,
-                everpresentrowposition: "bottom",
+                //showeverpresentrow: true,
+                //everpresentrowposition: "bottom",
                 rowdetails: true,
                 rowsheight: 25,
                 initrowdetails: initrowdetails,
                 editable: true,
                 editmode: 'selectedcell',
+                selectionmode: 'singlecell',
                 enabletooltips: true,
+                handlekeyboardnavigation: function (event) {
+                    var key = event.charCode ? event.charCode : event.keyCode ? event.keyCode : 0;
+                    if (key == 13) {
+                        var cell = $('#jqxgrid').jqxGrid('getselectedcell');
+                        if (editFlagMaster == false) {
+                            $("#jqxgrid").jqxGrid('begincelledit', cell.rowindex, cell.datafield);
+                        } else {
+                            $("#jqxgrid").jqxGrid('endcelledit', cell.rowindex, cell.datafield);
+                        };
+                        return true;
+                    };
+                },
                 showrowdetailscolumn: true,
-               // enablekeyboarddelete: true,
-                selectionmode: 'multiplerowsadvanced',
-                //selectionmode: 'singlerow',
                 rowdetailstemplate: { rowdetails: "<div id='grid' style='margin: 10px;'></div>", rowdetailsheight: 220, rowdetailshidden: true },
                 ready: function () {
                    // $("#jqxgrid").jqxGrid('showrowdetails',0);
@@ -155,7 +178,7 @@
                 var args = event.args;
                 $("#cellbegineditevent").text("Event Type: cellbeginedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
             });
-
+/*
             $("#jqxgrid").on('rowclick', function (event) {
 
                 var args = event.args;
@@ -168,7 +191,7 @@
                 };
 
                 isExpand = 1;
-            });
+            });*/
 
 /*
             $('#jqxgrid').on('rowselect', function (event) {
@@ -199,6 +222,17 @@
                   $('#jqxgrid').jqxGrid('hiderowdetails', i);
                 };
             });
+
+            var editFlagMaster = false;
+
+            $("#jqxgrid").on('cellbeginedit', function (event) {
+                editFlagMaster = true;
+            });
+
+            $("#jqxgrid").on('cellendedit', function (event) {
+                editFlagMaster = false;
+            });
+
         });
     </script>
 </head>
