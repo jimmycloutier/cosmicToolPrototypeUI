@@ -36,7 +36,7 @@
   for (var i = 0; i < rowscount; i++) {
         var row = {};
 
-        row["id"] = i;
+        row["id"] = i + 1;
         row["layer"] = layersFP[Math.floor(Math.random() * layersFP.length)];
         row["typeFP"] = typeFP[Math.floor(Math.random() * typeFP.length)];
         row["reference"] = refFP[Math.floor(Math.random() * refFP.length)];
@@ -51,7 +51,7 @@
      for (var j = rowscount; j < rowscount + 100; j++) {
         var row = {};
 
-        row["id"] = data.length;
+        row["id"] = data.length +1 ;
         row["layer"] = "";
         row["typeFP"] = "";
         row["reference"] = "";
@@ -93,7 +93,7 @@ function generateDG(rowscount) {
   for (var i = 0; i < rowscount; i++) {
         var row = {};
 
-        row["id"] = i;
+        row["id"] = i +1;
         row["dataGroup"] = dataGroups[Math.floor(Math.random() * dataGroups.length)];
         row["movement"] = movements[Math.floor(Math.random() * movements.length)];
         row["remark"] = remarksDG[Math.floor(Math.random() * remarksDG.length)];
@@ -105,7 +105,7 @@ function generateDG(rowscount) {
      for (var j = rowscount; j < rowscount + 100; j++) {
         var row = {};
 
-        row["id"] = j;
+        row["id"] = j + 1;
         row["dataGroup"] = "";
         row["movement"] = "";
         row["remark"] = "";
@@ -150,7 +150,7 @@ function generatedata(rowscount, hasNullValues) {
         var price = parseFloat(priceValues[productindex]);
         var quantity = 1 + Math.round(Math.random() * 10);
 
-        row["id"] = i;
+        row["id"] = i + 1;
         row["available"] = productindex % 2 == 0;
         if (hasNullValues == true) {
             if (productindex % 2 != 0) {
